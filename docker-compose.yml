@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # TiDB Database
+  # TiDB Database with correct flags
   tidb:
     image: pingcap/tidb:latest
     container_name: tidb
@@ -15,15 +15,16 @@ services:
     command: 
       - --store=mocktikv
       - --path=/tmp/tidb
-      - --log-level=info
+      - -L=info
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-P", "4000"]
+      test: ["CMD-SHELL", "mysql -h localhost -P 4000 -u root -e 'SELECT 1' || exit 1"]
       timeout: 20s
       retries: 10
+      interval: 30s
 
   # Zookeeper for Kafka
   zookeeper:
-    image: confluentinc/cp-zookeeper:latest
+    image: confluentinc/cp-zookeeper:7.4.0
     container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
@@ -31,9 +32,9 @@ services:
     ports:
       - "2181:2181"
 
-  # Kafka Message Broker
+  # Kafka Message Broker with proper configuration for newer versions
   kafka:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.4.0
     container_name: kafka
     depends_on:
       - zookeeper
@@ -47,11 +48,15 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      # Fix for the KAFKA_PROCESS_ROLES error - use Zookeeper mode
+      KAFKA_PROCESS_ROLES: ""
+      KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL: ""
     healthcheck:
       test: ["CMD", "kafka-topics", "--bootstrap-server", "localhost:9092", "--list"]
       timeout: 20s
       retries: 10
+      interval: 30s
 
   # Backend API Service
   api:

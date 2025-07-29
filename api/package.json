@@ -8,18 +8,19 @@
     "dev": "nodemon server.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "mysql2": "^3.6.5",
     "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.2",
     "cors": "^2.8.5",
-    "helmet": "^7.1.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
     "express-rate-limit": "^7.1.5",
-    "log4js": "^6.9.1",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
     "kafkajs": "^2.2.4",
-    "dotenv": "^16.3.1"
+    "log4js": "^6.9.1",
+    "mysql2": "^3.6.5"
   },
   "devDependencies": {
+    "axios": "^1.11.0",
     "nodemon": "^3.0.2"
   }
 }

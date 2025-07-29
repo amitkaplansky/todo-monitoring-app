@@ -47,3 +47,7 @@ CREATE TABLE IF NOT EXISTS todos (
   INDEX idx_user_priority (user_id, priority),
   INDEX idx_due_date (due_date)
 );
+
+-- Insert default user as required by assignment (password: admin123)
+INSERT IGNORE INTO users (username, email, password, is_active) 
+VALUES ('admin', 'admin@example.com', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewqSfz7FKjYDJ.5W', TRUE);
