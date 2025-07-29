@@ -50,4 +50,4 @@ CREATE TABLE IF NOT EXISTS todos (
 
 -- Insert default user as required by assignment (password: admin123)
 INSERT IGNORE INTO users (username, email, password, is_active) 
-VALUES ('admin', 'admin@example.com', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewqSfz7FKjYDJ.5W', TRUE);
+VALUES ('admin', 'admin@example.com', '$2b$12$ZYOoR1V1POpl2Gig7deA1Or7qivVNanViDSUV5HAfPnmV47PBuJFO', TRUE);
