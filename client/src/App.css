@@ -1,0 +1,17 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+input, select, button {
+  font-size: 14px;
+}
+
+table {
+  margin-top: 10px;
+}
+
+th {
+  background-color: #f0f0f0;
+}

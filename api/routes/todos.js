@@ -8,54 +8,66 @@ const router = express.Router();
 // Get todos
 router.get('/', authenticateToken, async (req, res) => {
   try {
-    const { 
-      status, 
-      priority, 
-      page = 1, 
-      limit = 20
+    const {
+      status,
+      priority,
+      page: pageParam,
+      limit: limitParam
     } = req.query;
+
+    const parsedPage = Number(pageParam);
+    const parsedLimit = Number(limitParam);
+
+    const safePage = Number.isInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+    const safeLimit = Number.isInteger(parsedLimit) && parsedLimit > 0 ? parsedLimit : 20;
+    const offset = (safePage - 1) * safeLimit;
+
+    if (!Number.isInteger(safeLimit) || !Number.isInteger(offset)) {
+      return res.status(400).json({ error: 'Invalid pagination values' });
+    }
 
     const db = getDatabase();
     let whereClause = 'WHERE user_id = ?';
-    const queryParams = [req.user.id];
+    const filterParams = [req.user.id];
 
     if (status) {
       whereClause += ' AND status = ?';
-      queryParams.push(status);
+      filterParams.push(status);
     }
 
     if (priority) {
       whereClause += ' AND priority = ?';
-      queryParams.push(priority);
+      filterParams.push(priority);
     }
 
-    const offset = (page - 1) * limit;
-    queryParams.push(parseInt(limit), offset);
-
-    const [todos] = await db.execute(`
+    // Fix: Build the SQL query with integer values directly instead of using parameters for LIMIT/OFFSET
+    const sql = `
       SELECT * FROM todos 
       ${whereClause}
       ORDER BY created_at DESC
-      LIMIT ? OFFSET ?
-    `, queryParams);
+      LIMIT ${parseInt(safeLimit)} OFFSET ${parseInt(offset)}
+    `;
 
-    // Get total count
+    // Fetch todos - only use filterParams (without limit/offset params)
+    const [todos] = await db.execute(sql, filterParams);
+
+    // Count total records (without pagination)
     const [countResult] = await db.execute(`
       SELECT COUNT(*) as total FROM todos ${whereClause}
-    `, queryParams.slice(0, -2));
+    `, filterParams);
 
     res.json({
       todos,
       pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
+        page: safePage,
+        limit: safeLimit,
         total: countResult[0].total,
-        pages: Math.ceil(countResult[0].total / limit)
+        pages: Math.ceil(countResult[0].total / safeLimit)
       }
     });
 
   } catch (error) {
-    logger.error('Error fetching todos:', error);
+    console.error('Error fetching todos:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
