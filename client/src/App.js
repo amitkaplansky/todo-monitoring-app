@@ -202,14 +202,6 @@ function App() {
           Username: admin<br />
           Password: admin123
         </div>
-        
-        {/* Debug info */}
-        <div style={{ marginTop: '20px', padding: '10px', backgroundColor: '#e0e0e0', fontSize: '12px' }}>
-          <strong>Debug Info:</strong><br />
-          User: {user ? 'Set' : 'Not set'}<br />
-          Token: {token ? 'Present' : 'Missing'}<br />
-          Check browser console for detailed logs
-        </div>
       </div>
     );
   }
